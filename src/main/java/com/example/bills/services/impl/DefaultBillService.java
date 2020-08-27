@@ -2,23 +2,35 @@ package com.example.bills.services.impl;
 
 import com.example.bills.domain.Bill;
 import com.example.bills.domain.BillOperation;
+import com.example.bills.dto.BillHistoryDto;
+import com.example.bills.dto.BillTurnoverDto;
 import com.example.bills.dto.KreditDebitDto;
+import com.example.bills.dto.PeriodQueryDto;
 import com.example.bills.dto.SumTransferDto;
 import com.example.bills.enums.BillOperationType;
 import com.example.bills.exceptions.BadRequestException;
+import com.example.bills.exceptions.BillNotFoundException;
+import com.example.bills.mappers.BillOperationMapper;
+import com.example.bills.repositories.BillOperationRepository;
 import com.example.bills.repositories.BillRepository;
 import com.example.bills.services.BillService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class DefaultBillService implements BillService {
 
   private final BillRepository billRepository;
+  private final BillOperationRepository billOperationRepository;
+  private final BillOperationMapper billOperationMapper;
 
   @Override
   @Transactional
@@ -92,6 +104,44 @@ public class DefaultBillService implements BillService {
             .build();
     bill.getOperations().add(destinationBillOperation);
     billRepository.save(destinationBill);
+  }
+
+  @Override
+  public BillTurnoverDto turnover(final PeriodQueryDto dto) {
+    checkDriverBill(dto.getBillId(), dto.getDriverId());
+
+    if (!billRepository.existsById(dto.getBillId()))
+      throw new BillNotFoundException("bill not found");
+
+    final List<BillOperation> creditOperations =
+        billOperationRepository.findAllByBillIdAndTypeAndDateBetween(
+            dto.getBillId(), BillOperationType.CREDIT, dto.getStartDate(), dto.getEndDate());
+
+    final List<BillOperation> debitOperations =
+        billOperationRepository.findAllByBillIdAndTypeAndDateBetween(
+            dto.getBillId(), BillOperationType.DEBIT, dto.getStartDate(), dto.getEndDate());
+
+    final BigDecimal debit =
+        debitOperations.stream()
+            .map(BillOperation::getSum)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+    final BigDecimal credit =
+        creditOperations.stream()
+            .map(BillOperation::getSum)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+    return BillTurnoverDto.builder().debit(debit).сredit(credit).build();
+  }
+
+  @Override
+  public Page<BillHistoryDto> history(final PeriodQueryDto dto, Pageable pageable) {
+
+    final Page<BillOperation> operations =
+        billOperationRepository.findAllByDateBetween(
+            dto.getStartDate(), dto.getEndDate(), pageable);
+
+    return operations.map(billOperationMapper::toBillHistoryDto);
   }
 
   private void checkDriverBill(Long billId, Long driverId) {

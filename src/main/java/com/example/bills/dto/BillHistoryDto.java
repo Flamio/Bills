@@ -5,14 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.math.BigDecimal;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DriverDto {
-  private Long id;
-  private String fio;
-  private List<BillDto> bills;
+public class BillHistoryDto {
+    private BigDecimal sum;
+    private Date date;
+    private String type;
 }

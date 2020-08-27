@@ -39,6 +39,6 @@ public class Bill {
   @JoinColumn(name = "driver_id", nullable = false)
   private Driver driver;
 
-  @OneToMany(cascade = CascadeType.ALL, mappedBy = "bill")
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "bill")
   private List<BillOperation> operations;
 }

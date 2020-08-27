@@ -5,14 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.Date;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class DriverDto {
-  private Long id;
-  private String fio;
-  private List<BillDto> bills;
+public class PeriodQueryDto {
+  private Long billId;
+  private Long driverId;
+  private Date startDate;
+  private Date endDate;
 }

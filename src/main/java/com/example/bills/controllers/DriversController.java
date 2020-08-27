@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -23,8 +24,8 @@ public class DriversController {
     return driverService.list();
   }
 
-  @GetMapping("/{id}/bills/}")
-  public List<Bill> getBills(@PathVariable Long id) {
-    return driverService.getBills(id);
+  @GetMapping("/{id}/bills/{billId}")
+  public BigDecimal getCurrentSum(@PathVariable Long id, @PathVariable Long billId) {
+    return driverService.currentSumInBill(id, billId);
   }
 }
