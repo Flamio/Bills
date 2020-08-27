@@ -1,0 +1,28 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: Bills
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/bills
+    username: bills
+    password: bills
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      connection-test-query: SELECT 1;
+      idle-timeout: 30000
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
+    show-sql: true
+    properties:
+      javax.persistence.validation.mode: none
+  flyway:
+    enabled: false
+    encoding: UTF-8
+    locations: classpath:/db/migration/
+    validate-on-migrate: true
+    baseline-on-migrate: true
+
