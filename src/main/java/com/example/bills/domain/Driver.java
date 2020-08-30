@@ -15,6 +15,9 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import java.util.List;
 
+/**
+ * Водитель.
+ */
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,13 +25,22 @@ import java.util.List;
 @Builder
 public class Driver {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    /**
+     * Идентификатор.
+     */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @Column(nullable = false)
-  private String fio;
+    /**
+     * ФИО.
+     */
+    @Column(nullable = false)
+    private String fio;
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "driver")
-  private List<Bill> bills;
+    /**
+     * счета.
+     */
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "driver")
+    private List<Bill> bills;
 }

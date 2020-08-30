@@ -8,12 +8,29 @@ import org.springframework.lang.NonNull;
 
 import java.math.BigDecimal;
 
+/**
+ * dto для запроса списания/начисления на счет.
+ */
 @Data
 @NoArgsConstructor
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class KreditDebitDto {
-  @NonNull private Long driverId;
-  @NonNull private Long billId;
-  @NonNull private BigDecimal sum;
+    /**
+     * id водителя.
+     */
+    @NonNull
+    private Long driverId;
+
+    /**
+     * id счета.
+     */
+    @NonNull
+    private Long billId;
+
+    /**
+     * Сумма.
+     */
+    @NonNull
+    private BigDecimal sum;
 }

@@ -7,13 +7,30 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
+/**
+ * dto для запроса периода операций.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class PeriodQueryDto {
-  private Long billId;
-  private Long driverId;
-  private Date startDate;
-  private Date endDate;
+    /**
+     * id счета.
+     */
+    private Long billId;
+    /**
+     * id водителя.
+     */
+    private Long driverId;
+
+    /**
+     * Дата начала.
+     */
+    private Date startDate;
+
+    /**
+     * Дата конца.
+     */
+    private Date endDate;
 }

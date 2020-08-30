@@ -7,6 +7,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
+/**
+ * Маппер операции по счету из сущности БД в dto.
+ */
 @Mapper(componentModel = "spring")
 public interface BillOperationMapper {
   @Mapping(source = "type", target = "type", qualifiedByName = "typeTransformation")

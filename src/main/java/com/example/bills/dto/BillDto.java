@@ -7,12 +7,26 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+/**
+ * dto счета.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class BillDto {
-  private Long id;
-  private BigDecimal currentSum;
-  private String name;
+    /**
+     * Идентификатор
+     */
+    private Long id;
+
+    /**
+     * Текущая сумма.
+     */
+    private BigDecimal currentSum;
+
+    /**
+     * Название.
+     */
+    private String name;
 }

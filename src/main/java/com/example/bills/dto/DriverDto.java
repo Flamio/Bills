@@ -7,12 +7,24 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+/**
+ * dto водителя.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class DriverDto {
-  private Long id;
-  private String fio;
-  private List<BillDto> bills;
+    /**
+     * Идентификатор.
+     */
+    private Long id;
+    /**
+     * ФИО.
+     */
+    private String fio;
+    /**
+     * Счета.
+     */
+    private List<BillDto> bills;
 }

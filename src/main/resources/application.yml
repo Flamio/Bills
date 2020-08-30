@@ -14,13 +14,13 @@ spring:
       idle-timeout: 30000
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     database-platform: org.hibernate.dialect.PostgreSQL9Dialect
     show-sql: true
     properties:
       javax.persistence.validation.mode: none
   flyway:
-    enabled: false
+    enabled: true
     encoding: UTF-8
     locations: classpath:/db/migration/
     validate-on-migrate: true

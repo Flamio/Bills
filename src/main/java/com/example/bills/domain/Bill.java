@@ -18,6 +18,9 @@ import javax.persistence.OneToMany;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * Счет.
+ */
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,20 +28,35 @@ import java.util.List;
 @Builder
 public class Bill {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    /**
+     * Идентификатор.
+     */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @Column(nullable = false)
-  private BigDecimal currentSum;
+    /**
+     * Текущая сумма.
+     */
+    @Column(nullable = false)
+    private BigDecimal currentSum;
 
-  @Column(nullable = false)
-  private String name;
+    /**
+     * Название счета.
+     */
+    @Column(nullable = false)
+    private String name;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "driver_id", nullable = false)
-  private Driver driver;
+    /**
+     * Водитель, которому принадлежит.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "driver_id", nullable = false)
+    private Driver driver;
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "bill")
-  private List<BillOperation> operations;
+    /**
+     * Операции по счету.
+     */
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "bill")
+    private List<BillOperation> operations;
 }

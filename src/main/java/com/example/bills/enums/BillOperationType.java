@@ -1,17 +1,26 @@
 package com.example.bills.enums;
 
+/**
+ * Тип операции.
+ */
 public enum BillOperationType {
-  DEBIT("Списание"),
-  CREDIT("Начисление"),
-  TRANSFER("Перевод");
+    /**
+     * Списание
+     */
+    DEBIT("Списание"),
 
-  BillOperationType(final String value) {
-    this.value = value;
-  }
+    /**
+     * Начилсение.
+     */
+    CREDIT("Начисление");
 
-  private String value;
+    BillOperationType(final String value) {
+        this.value = value;
+    }
 
-  public String getValue() {
-    return value;
-  }
+    private String value;
+
+    public String getValue() {
+        return value;
+    }
 }

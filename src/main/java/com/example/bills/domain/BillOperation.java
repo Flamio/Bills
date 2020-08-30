@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -17,6 +18,9 @@ import javax.persistence.ManyToOne;
 import java.math.BigDecimal;
 import java.util.Date;
 
+/**
+ * Операция по счету.
+ */
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,18 +28,36 @@ import java.util.Date;
 @Builder
 public class BillOperation {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    /**
+     * Идентификатор.
+     */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @Enumerated(value = EnumType.STRING)
-  private BillOperationType type;
+    /**
+     * Тип операции.
+     */
+    @Column(nullable = false)
+    @Enumerated(value = EnumType.STRING)
+    private BillOperationType type;
 
-  private BigDecimal sum;
+    /**
+     * Сумма.
+     */
+    @Column(nullable = false)
+    private BigDecimal sum;
 
-  private Date date;
+    /**
+     * Дата.
+     */
+    @Column(nullable = false)
+    private Date date;
 
-  @ManyToOne
-  @JoinColumn(name = "bill_id")
-  private Bill bill;
+    /**
+     * Счет, с которым производилась операция.
+     */
+    @ManyToOne
+    @JoinColumn(name = "bill_id")
+    private Bill bill;
 }

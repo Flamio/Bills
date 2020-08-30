@@ -7,11 +7,21 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+/**
+ * dto для оборота по счету.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class BillTurnoverDto {
-  private BigDecimal debit;
-  private BigDecimal сredit;
+    /**
+     * Дебет.
+     */
+    private BigDecimal debit;
+
+    /**
+     * Кредит.
+     */
+    private BigDecimal сredit;
 }
