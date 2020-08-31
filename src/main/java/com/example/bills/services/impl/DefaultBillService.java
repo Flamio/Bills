@@ -149,7 +149,7 @@ public class DefaultBillService implements BillService {
                         .map(BillOperation::getSum)
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        return BillTurnoverDto.builder().debit(debit).сredit(credit).build();
+        return BillTurnoverDto.builder().debit(debit).kredit(credit).build();
     }
 
     @Override

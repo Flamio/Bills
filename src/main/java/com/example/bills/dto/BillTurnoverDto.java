@@ -23,5 +23,5 @@ public class BillTurnoverDto {
     /**
      * Кредит.
      */
-    private BigDecimal сredit;
+    private BigDecimal kredit;
 }
