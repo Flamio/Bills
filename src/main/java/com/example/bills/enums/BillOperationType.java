@@ -12,7 +12,7 @@ public enum BillOperationType {
     /**
      * Начилсение.
      */
-    CREDIT("Начисление");
+    KREDIT("Начисление");
 
     BillOperationType(final String value) {
         this.value = value;

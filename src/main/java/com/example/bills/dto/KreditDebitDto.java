@@ -1,36 +1,25 @@
 package com.example.bills.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.NonNull;
 
 import java.math.BigDecimal;
 
-/**
- * dto для запроса списания/начисления на счет.
- */
+/** dto для запроса списания/начисления на счет. */
 @Data
 @NoArgsConstructor
-@JsonInclude(value = JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown = true)
+@AllArgsConstructor
+@Builder
 public class KreditDebitDto {
-    /**
-     * id водителя.
-     */
-    @NonNull
-    private Long driverId;
+  /** id водителя. */
+  @NonNull private Long driverId;
 
-    /**
-     * id счета.
-     */
-    @NonNull
-    private Long billId;
+  /** id счета. */
+  @NonNull private Long billId;
 
-    /**
-     * Сумма.
-     */
-    @NonNull
-    private BigDecimal sum;
+  /** Сумма. */
+  @NonNull private BigDecimal sum;
 }

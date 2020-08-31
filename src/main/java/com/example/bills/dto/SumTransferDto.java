@@ -1,5 +1,7 @@
 package com.example.bills.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -11,6 +13,7 @@ import lombok.NonNull;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class SumTransferDto extends KreditDebitDto {
 
     /**

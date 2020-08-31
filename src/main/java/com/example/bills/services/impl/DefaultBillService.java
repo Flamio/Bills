@@ -30,148 +30,155 @@ import java.util.List;
 @Slf4j
 public class DefaultBillService implements BillService {
 
-    private final BillRepository billRepository;
-    private final BillOperationRepository billOperationRepository;
-    private final BillOperationMapper billOperationMapper;
+  private final BillRepository billRepository;
+  private final BillOperationRepository billOperationRepository;
+  private final BillOperationMapper billOperationMapper;
 
-    @Override
-    @Transactional
-    public void kredit(KreditDebitDto dto) {
-        checkDriverBill(dto.getBillId(), dto.getDriverId());
+  @Override
+  @Transactional
+  public void kredit(KreditDebitDto dto) {
+    checkDriverBill(dto.getBillId(), dto.getDriverId());
 
-        final Bill bill = billRepository.findById(dto.getBillId()).get();
-        bill.setCurrentSum(bill.getCurrentSum().add(dto.getSum()));
+    final Bill bill = billRepository.findById(dto.getBillId()).get();
+    bill.setCurrentSum(bill.getCurrentSum().add(dto.getSum()));
 
-        final BillOperation billOperation =
-                BillOperation.builder()
-                        .bill(bill)
-                        .date(new Date())
-                        .sum(dto.getSum())
-                        .type(BillOperationType.CREDIT)
-                        .build();
+    final BillOperation billOperation =
+        BillOperation.builder()
+            .bill(bill)
+            .date(new Date())
+            .sum(dto.getSum())
+            .type(BillOperationType.KREDIT)
+            .build();
 
-        bill.getOperations().add(billOperation);
+    bill.getOperations().add(billOperation);
 
-        billRepository.save(bill);
-        log.info("kredit bill: {}. Sum: {}", bill.getId(), dto.getSum());
+    billRepository.save(bill);
+    log.info("kredit bill: {}. Sum: {}", bill.getId(), dto.getSum());
+  }
+
+  @Override
+  @Transactional
+  public void debit(KreditDebitDto dto) {
+    checkDriverBill(dto.getBillId(), dto.getDriverId());
+
+    final Bill bill = billRepository.findById(dto.getBillId()).get();
+
+    if (bill.getCurrentSum().subtract(dto.getSum()).compareTo(BigDecimal.ZERO) < 0) {
+      log.error("bill {} has no enought money to debit {}", bill.getId(), dto.getSum());
+      throw new BadRequestException("not enought money to debit");
     }
 
-    @Override
-    @Transactional
-    public void debit(KreditDebitDto dto) {
-        checkDriverBill(dto.getBillId(), dto.getDriverId());
+    bill.setCurrentSum(bill.getCurrentSum().subtract(dto.getSum()));
 
-        final Bill bill = billRepository.findById(dto.getBillId()).get();
+    final BillOperation billOperation =
+        BillOperation.builder()
+            .bill(bill)
+            .date(new Date())
+            .sum(dto.getSum())
+            .type(BillOperationType.DEBIT)
+            .build();
 
-        if (bill.getCurrentSum().subtract(dto.getSum()).compareTo(BigDecimal.ZERO) < 0) {
-            log.error("bill {} has no enought money to debit {}", bill.getId(), dto.getSum());
-            throw new BadRequestException("not enought money to debit");
-        }
+    bill.getOperations().add(billOperation);
 
-        bill.setCurrentSum(bill.getCurrentSum().subtract(dto.getSum()));
+    billRepository.save(bill);
+    log.info(" debit bill: {}. Sum: {}", bill.getId(), dto.getSum());
+  }
 
-        final BillOperation billOperation =
-                BillOperation.builder()
-                        .bill(bill)
-                        .date(new Date())
-                        .sum(dto.getSum())
-                        .type(BillOperationType.DEBIT)
-                        .build();
+  @Override
+  @Transactional
+  public void transfer(final SumTransferDto dto) {
+    checkDriverBill(dto.getBillId(), dto.getDriverId());
+    checkDriverBill(dto.getDestinationBillId(), dto.getDriverId());
 
-        bill.getOperations().add(billOperation);
+    final Bill bill = billRepository.findById(dto.getBillId()).get();
 
-        billRepository.save(bill);
-        log.info(" debit bill: {}. Sum: {}", bill.getId(), dto.getSum());
+    if (bill.getCurrentSum().subtract(dto.getSum()).compareTo(BigDecimal.ZERO) < 0) {
+      log.error("bill {} has no enough money to transfer {}", bill.getId(), dto.getSum());
+      throw new BadRequestException("not enough money to transfer");
     }
 
-    @Override
-    @Transactional
-    public void transfer(final SumTransferDto dto) {
-        checkDriverBill(dto.getBillId(), dto.getDriverId());
-        checkDriverBill(dto.getDestinationBillId(), dto.getDriverId());
+    bill.setCurrentSum(bill.getCurrentSum().subtract(dto.getSum()));
+    final BillOperation billOperation =
+        BillOperation.builder()
+            .bill(bill)
+            .date(new Date())
+            .sum(dto.getSum())
+            .type(BillOperationType.DEBIT)
+            .build();
+    bill.getOperations().add(billOperation);
 
-        final Bill bill = billRepository.findById(dto.getBillId()).get();
+    billRepository.save(bill);
 
-        if (bill.getCurrentSum().subtract(dto.getSum()).compareTo(BigDecimal.ZERO) < 0) {
-            log.error("bill {} has no enough money to transfer {}", bill.getId(), dto.getSum());
-            throw new BadRequestException("not enough money to transfer");
-        }
+    final Bill destinationBill = billRepository.findById(dto.getDestinationBillId()).get();
+    destinationBill.setCurrentSum(destinationBill.getCurrentSum().add(dto.getSum()));
+    final BillOperation destinationBillOperation =
+        BillOperation.builder()
+            .bill(destinationBill)
+            .date(new Date())
+            .sum(dto.getSum())
+            .type(BillOperationType.KREDIT)
+            .build();
+    destinationBill.getOperations().add(destinationBillOperation);
+    billRepository.save(destinationBill);
 
-        bill.setCurrentSum(bill.getCurrentSum().subtract(dto.getSum()));
-        final BillOperation billOperation =
-                BillOperation.builder()
-                        .bill(bill)
-                        .date(new Date())
-                        .sum(dto.getSum())
-                        .type(BillOperationType.DEBIT)
-                        .build();
-        bill.getOperations().add(billOperation);
+    log.info(
+        "transfer from bill {} to bill {} with sum: {}",
+        bill.getId(),
+        destinationBill.getId(),
+        dto.getSum());
+  }
 
-        billRepository.save(bill);
+  @Override
+  public BillTurnoverDto turnover(final PeriodQueryDto dto) {
+    checkDriverBill(dto.getBillId(), dto.getDriverId());
 
-        final Bill destinationBill = billRepository.findById(dto.getDestinationBillId()).get();
-        destinationBill.setCurrentSum(destinationBill.getCurrentSum().add(dto.getSum()));
-        final BillOperation destinationBillOperation =
-                BillOperation.builder()
-                        .bill(destinationBill)
-                        .date(new Date())
-                        .sum(dto.getSum())
-                        .type(BillOperationType.CREDIT)
-                        .build();
-        bill.getOperations().add(destinationBillOperation);
-        billRepository.save(destinationBill);
+    if (!billRepository.existsById(dto.getBillId()))
+      throw new BillNotFoundException("bill not found");
 
-        log.info("transfer from bill {} to bill {} with sum: {}", bill.getId(), destinationBill.getId(), dto.getSum());
-    }
+    final List<BillOperation> kreditOperations =
+        billOperationRepository.findAllByBillIdAndTypeAndDateBetween(
+            dto.getBillId(), BillOperationType.KREDIT, dto.getStartDate(), dto.getEndDate());
 
-    @Override
-    public BillTurnoverDto turnover(final PeriodQueryDto dto) {
-        checkDriverBill(dto.getBillId(), dto.getDriverId());
+    final List<BillOperation> debitOperations =
+        billOperationRepository.findAllByBillIdAndTypeAndDateBetween(
+            dto.getBillId(), BillOperationType.DEBIT, dto.getStartDate(), dto.getEndDate());
 
-        if (!billRepository.existsById(dto.getBillId()))
-            throw new BillNotFoundException("bill not found");
+    final BigDecimal debit =
+        debitOperations.stream()
+            .map(BillOperation::getSum)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        final List<BillOperation> creditOperations =
-                billOperationRepository.findAllByBillIdAndTypeAndDateBetween(
-                        dto.getBillId(), BillOperationType.CREDIT, dto.getStartDate(), dto.getEndDate());
+    final BigDecimal kredit =
+        kreditOperations.stream()
+            .map(BillOperation::getSum)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        final List<BillOperation> debitOperations =
-                billOperationRepository.findAllByBillIdAndTypeAndDateBetween(
-                        dto.getBillId(), BillOperationType.DEBIT, dto.getStartDate(), dto.getEndDate());
+    return BillTurnoverDto.builder().debit(debit).kredit(kredit).build();
+  }
 
-        final BigDecimal debit =
-                debitOperations.stream()
-                        .map(BillOperation::getSum)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+  @Override
+  public Page<BillHistoryDto> history(final PeriodQueryDto dto, Pageable pageable) {
+    final Page<BillOperation> operations =
+        billOperationRepository.findAllByDateBetween(
+            dto.getStartDate(), dto.getEndDate(), pageable);
 
-        final BigDecimal credit =
-                creditOperations.stream()
-                        .map(BillOperation::getSum)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+    return operations.map(
+        billOperation -> {
+          final BillHistoryDto billHistoryDto = billOperationMapper.toBillHistoryDto(billOperation);
 
-        return BillTurnoverDto.builder().debit(debit).kredit(credit).build();
-    }
-
-    @Override
-    public Page<BillHistoryDto> history(final PeriodQueryDto dto, Pageable pageable) {
-        final Page<BillOperation> operations =
-                billOperationRepository.findAllByDateBetween(
-                        dto.getStartDate(), dto.getEndDate(), pageable);
-
-        return operations.map(billOperation -> {
-            final BillHistoryDto billHistoryDto = billOperationMapper.toBillHistoryDto(billOperation);
-
-            billHistoryDto.setDetails(String.format("Водитель: %s, счет: %s", billOperation.getBill().getDriver().getFio(), billOperation.getBill().getName()));
-            return billHistoryDto;
+          billHistoryDto.setDetails(
+              String.format(
+                  "Водитель: %s, счет: %s",
+                  billOperation.getBill().getDriver().getFio(), billOperation.getBill().getName()));
+          return billHistoryDto;
         });
-    }
+  }
 
-    private void checkDriverBill(Long billId, Long driverId) {
-        if (billRepository.existsByIdAndAndDriverId(billId, driverId))
-            return;
+  private void checkDriverBill(Long billId, Long driverId) {
+    if (billRepository.existsByIdAndAndDriverId(billId, driverId)) return;
 
-        final String message = String.format("no bill (%s) for driver (%s)", billId, driverId);
-        log.error(message);
-        throw new BadRequestException(message);
-    }
+    final String message = String.format("no bill (%s) for driver (%s)", billId, driverId);
+    log.error(message);
+    throw new BadRequestException(message);
+  }
 }
